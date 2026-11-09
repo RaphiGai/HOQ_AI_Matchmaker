@@ -91,6 +91,8 @@ class Ctx {
   }
 }
 
+const LIFT_PATTERN = /\blifts?\b|elevators?|automatic doors?|aufzug/;
+
 const LIFT_NEED = (source: string): Need => ({
   id: 'n-lifts',
   text: 'Robots use lifts and automatic doors on their own',
@@ -109,7 +111,8 @@ const DOCUMENT_RULES: Rule[] = [
     },
   },
   {
-    pattern: /lift|elevator|automatic door|aufzug/,
+    // word boundary: "forklift" must not count as a lift
+    pattern: LIFT_PATTERN,
     apply: (ctx, src) => ctx.addNeed(LIFT_NEED(src), { c3: 9, c4: 3, c9: 1 }, src, 'lifts or doors mentioned in the request'),
   },
   {
@@ -175,7 +178,7 @@ function applyAnswers(ctx: Ctx, answers: Record<string, string>) {
   if (a('onprem') === 'Yes') ctx.raise('n8', 5, src('onprem'), 'on-premise required');
 
   const integrations = a('integrations').toLowerCase();
-  if (/lift|elevator|door|aufzug/.test(integrations)) {
+  if (LIFT_PATTERN.test(integrations) || /\bdoors?\b/.test(integrations)) {
     ctx.addNeed(LIFT_NEED(src('integrations')), { c3: 9, c4: 3, c9: 1 }, src('integrations'), 'lifts or doors to integrate');
   }
   if (/\b(sap|wms|erp|mes)\b/.test(integrations)) ctx.raise('n7', 5, src('integrations'), 'WMS/ERP/MES integration');

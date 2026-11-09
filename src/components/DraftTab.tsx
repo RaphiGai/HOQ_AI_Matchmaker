@@ -12,6 +12,7 @@ const provider = mockProvider;
 
 const STEPS = ['Reading description and documents', 'Extracting customer needs', 'Weighting needs (1–5)', 'Scoring relationships and roof', 'Preparing follow-up questions'];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 export function DraftTab({ project, update }: TabProps) {
   const [running, setRunning] = useState(false);
@@ -76,7 +77,7 @@ export function DraftTab({ project, update }: TabProps) {
             <dl className="facts">
               <div><dt>Created</dt><dd>{formatDateTime(draft.createdAt)}</dd></div>
               <div><dt>By</dt><dd>{draft.provider}</dd></div>
-              <div><dt>Inputs</dt><dd>{project.documents.length} documents, {Object.values(project.answers).filter((a) => a?.trim()).length} answers</dd></div>
+              <div><dt>Inputs</dt><dd>{plural(project.documents.length, 'document')}, {plural(Object.values(project.answers).filter((a) => a?.trim()).length, 'answer')}</dd></div>
             </dl>
             {stale && (
               <p className="alert alert-info">Inputs changed since this draft (description, documents or answers). Regenerate to include them.</p>
